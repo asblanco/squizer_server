@@ -134,3 +134,26 @@ CORS_ORIGIN_ALLOW_ALL = True
 #     '127.0.0.1:4200',
 #     'http://localhost:4200'
 # )
+
+# APPEND_SLASH = False
+
+# Activate log to debug
+# 
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'file': {
+#             'level': 'DEBUG',
+#             'class': 'logging.FileHandler',
+#             'filename': 'debug.log',
+#         },
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['file'],
+#             'level': 'DEBUG',
+#             'propagate': True,
+#         },
+#     },
+# }
