@@ -2,6 +2,15 @@ from rest_framework import serializers
 from courses.models import Course, Chapter, Question, Answer
 
 """
+Serializer for courses list
+"""
+
+class CourseListSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
+    name = serializers.CharField(required=True, max_length=100)
+
+
+"""
 ModelSerializers with writable nested serializers
 """
 
