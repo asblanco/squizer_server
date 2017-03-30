@@ -39,7 +39,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 
         items = validated_data.get('answers')
         for item in items:
-            inv_item = Question.objects.get(question=question, pk=item.pk)
+            inv_item = Answer.objects.get(question=item['question'], title=item['title'])
             inv_item.save()
 
         instance.save()
@@ -66,7 +66,7 @@ class ChapterSerializer(serializers.ModelSerializer):
 
         items = validated_data.get('questions')
         for item in items:
-            inv_item = Chapter.objects.get(chapter=chapter, pk=item.pk)
+            inv_item = Question.objects.get(chapter=item['chapter'], title=item['title'])
             inv_item.save()
 
         instance.save()
@@ -88,13 +88,9 @@ class CourseSerializer(serializers.ModelSerializer):
         return course
 
     def update(self, instance, validated_data):
+        """
+        Update only the name of the course (not chapters)
+        """
         instance.name = validated_data.get('name', instance.name)
-        instance.save()
-
-        items = validated_data.get('chapters')
-        for item in items:
-            inv_item = Course.objects.get(course=course, pk=item.pk)
-            inv_item.save()
-
         instance.save()
         return instance
