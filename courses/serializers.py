@@ -17,7 +17,7 @@ ModelSerializers with writable nested serializers
 class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
-        fields = ('question', 'id', 'title', 'correct')
+        fields = ('id', 'title', 'correct')
 
 
 class QuestionSerializer(serializers.ModelSerializer):
@@ -30,7 +30,7 @@ class QuestionSerializer(serializers.ModelSerializer):
         answers_data = validated_data.pop('answers')
         question = Question.objects.create(**validated_data)
         for answer_data in answers_data:
-            Answer.objects.create(question=question, **chapter_data)
+            Answer.objects.create(question=question, **answer_data)
         return question
 
     def update(self, instance, validated_data):
