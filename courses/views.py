@@ -1,5 +1,5 @@
 from courses.models import Course, Chapter, Question, Answer
-from courses.serializers import CourseListSerializer, CourseSerializer, ChapterSerializer, QuestionSerializer, AnswerSerializer
+from courses.serializers import CourseListSerializer, CourseSerializer, ChapterSerializer, QuestionSerializer, AnswerSerializer, QuestionUpdateSerializer
 from rest_framework import viewsets
 from rest_framework import generics
 
@@ -11,6 +11,12 @@ class CourseList(generics.ListAPIView):
     queryset = Course.objects.all()
     serializer_class = CourseListSerializer
 
+class QuestionUpdate(generics.UpdateAPIView):
+    """
+    Update question and its answers
+    """
+    queryset = Question.objects.all()
+    serializer_class = QuestionUpdateSerializer
 
 """
 These viewsets automatically provide `list`, `create`, `retrieve`,

@@ -3,6 +3,8 @@ from django.db import models
 class Course(models.Model):
     name = models.CharField(max_length=100)
 
+    class Meta:
+        ordering = ['id']
     def __str__(self):
         return self.name
 
@@ -13,6 +15,7 @@ class Chapter(models.Model):
 
     class Meta:
         unique_together = (("id", "course"),)
+        ordering = ['id']
     def __str__(self):
         return self.title
 
@@ -23,6 +26,7 @@ class Question(models.Model):
 
     class Meta:
         unique_together = (("id", "chapter"),)
+        ordering = ['id']
     def __str__(self):
         return self.title
 
@@ -34,5 +38,6 @@ class Answer(models.Model):
 
     class Meta:
         unique_together = (("id", "question"),)
+        ordering = ['id']
     def __str__(self):
         return self.title

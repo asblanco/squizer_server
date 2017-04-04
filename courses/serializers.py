@@ -17,14 +17,22 @@ ModelSerializers with writable nested serializers
 class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
-        fields = ('id', 'title', 'correct')
+        exclude = ('question',)
 
+class AnswerUpdateSerializer(serializers.ModelSerializer):
+    id = serializers.ModelField(model_field=Answer()._meta.get_field('id'))
+    class Meta:
+        model = Answer
+        exclude = ('question',)
+        validators = []
 
 class QuestionSerializer(serializers.ModelSerializer):
     answers = AnswerSerializer(many=True)
+
     class Meta:
         model = Question
-        fields = ('chapter', 'id', 'title', 'answers')
+        validators = []     #unique together validators cannot automatically be applied
+        fields = ('__all__')
 
     def create(self, validated_data):
         answers_data = validated_data.pop('answers')
@@ -33,14 +41,36 @@ class QuestionSerializer(serializers.ModelSerializer):
             Answer.objects.create(question=question, **answer_data)
         return question
 
+
+class QuestionUpdateSerializer(serializers.ModelSerializer):
+    answers = AnswerUpdateSerializer(many=True)
+    id = serializers.ModelField(model_field=Question()._meta.get_field('id'))
+
+    class Meta:
+        model = Question
+        validators = []
+        fields = ('__all__')
+
     def update(self, instance, validated_data):
         instance.title = validated_data.get('title', instance.title)
         instance.save()
 
-        items = validated_data.get('answers')
-        for item in items:
-            inv_item = Answer.objects.get(question=item['question'], title=item['title'])
-            inv_item.save()
+        answers_data = validated_data.get('answers')
+        for answer in answers_data:
+            obj, created = Answer.objects.update_or_create(
+                question=instance, id=answer['id'],
+                defaults={'title': answer['title'], 'correct': answer['correct']},
+            )
+
+        #Delete answers that were not in the request (the user deleted them)
+        old_answers = Answer.objects.filter(question = validated_data.get('id')).values()
+        for old in old_answers:
+            toDelete = True
+            for answer in answers_data:
+                if answer['id'] == old['id']:
+                    toDelete = False
+            if toDelete:
+                Answer.objects.filter(id=old['id']).delete()
 
         instance.save()
         return instance
@@ -62,13 +92,6 @@ class ChapterSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         instance.title = validated_data.get('title', instance.title)
-        instance.save()
-
-        items = validated_data.get('questions')
-        for item in items:
-            inv_item = Question.objects.get(chapter=item['chapter'], title=item['title'])
-            inv_item.save()
-
         instance.save()
         return instance
 

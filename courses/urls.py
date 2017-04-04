@@ -12,5 +12,6 @@ router.register(r'answers', views.AnswerViewSet)
 # The API URLs are determined automatically by the router.
 urlpatterns = [
     url(r'^courses/$', views.CourseList.as_view()),
+    url(r'^update-question/(?P<pk>[0-9]+)/$', views.QuestionUpdate.as_view()),
     url(r'^', include(router.urls))
 ]
