@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from courses.models import Course, Chapter, Question, Answer
+from django.db import transaction
 
 """
 Serializer for courses list
@@ -17,6 +18,11 @@ ModelSerializers with writable nested serializers
 class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
+        fields = ('__all__')
+
+class AnswerCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Answer
         exclude = ('question',)
 
 class AnswerUpdateSerializer(serializers.ModelSerializer):
@@ -27,7 +33,7 @@ class AnswerUpdateSerializer(serializers.ModelSerializer):
         validators = []
 
 class QuestionSerializer(serializers.ModelSerializer):
-    answers = AnswerSerializer(many=True)
+    answers = AnswerCreateSerializer(many=True)
 
     class Meta:
         model = Question
@@ -52,28 +58,28 @@ class QuestionUpdateSerializer(serializers.ModelSerializer):
         fields = ('__all__')
 
     def update(self, instance, validated_data):
-        instance.title = validated_data.get('title', instance.title)
-        instance.save()
+        with transaction.atomic():
+            instance.title = validated_data.get('title', instance.title)
+            instance.save()
 
-        answers_data = validated_data.get('answers')
-        for answer in answers_data:
-            obj, created = Answer.objects.update_or_create(
-                question=instance, id=answer['id'],
-                defaults={'title': answer['title'], 'correct': answer['correct']},
-            )
-
-        #Delete answers that were not in the request (the user deleted them)
-        old_answers = Answer.objects.filter(question = validated_data.get('id')).values()
-        for old in old_answers:
-            toDelete = True
+            answers_data = validated_data.get('answers')
             for answer in answers_data:
-                if answer['id'] == old['id']:
-                    toDelete = False
-            if toDelete:
-                Answer.objects.filter(id=old['id']).delete()
+                if answer['id'] != 0:
+                    Answer.objects.filter(id = answer['id']).update(title = answer['title'], correct = answer['correct'])
 
-        instance.save()
-        return instance
+            #Delete answers that were not in the request (the user deleted them)
+            old_answers = Answer.objects.filter(question = validated_data.get('id')).values()
+            print(old_answers)
+            for old in old_answers:
+                toDelete = True
+                for answer in answers_data:
+                    if answer['id'] == old['id']:
+                        toDelete = False
+                if toDelete:
+                    Answer.objects.filter(id=old['id']).delete()
+
+            instance.save()
+            return instance
 
 
 class ChapterSerializer(serializers.ModelSerializer):
