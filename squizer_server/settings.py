@@ -78,6 +78,11 @@ WSGI_APPLICATION = 'squizer_server.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
+DATABASES = {'default': dj_database_url.config(default=os.environ["HEROKU_POSTGRESQL_COPPER_URL"])}
+
+"""
+Local database
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -88,6 +93,7 @@ DATABASES = {
 	'PORT': '',
     }
 }
+"""
 
 
 # Password validation
