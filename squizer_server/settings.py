@@ -25,7 +25,7 @@ SECRET_KEY = 't-+k_n_x1qs)q)iigny3@1!*w7df-m)8d#kax-j6nabv_prcnx'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['squizer-server.herokuapp.com']
 
 
 # Application definition
@@ -138,7 +138,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 # APPEND_SLASH = False
 
 # Activate log to debug
-# 
+#
 # LOGGING = {
 #     'version': 1,
 #     'disable_existing_loggers': False,
