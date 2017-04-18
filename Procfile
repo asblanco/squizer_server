@@ -1,1 +1,1 @@
-web: gunicorn squizer-server.wsgi --log-file -
+web: gunicorn squizer_server.wsgi --log-file -
