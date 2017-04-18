@@ -27,12 +27,6 @@ SECRET_KEY = 't-+k_n_x1qs)q)iigny3@1!*w7df-m)8d#kax-j6nabv_prcnx'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    'squizer-server.herokuapp.com',
-    'localhost'
-]
-
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -83,13 +77,8 @@ WSGI_APPLICATION = 'squizer_server.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
-db_from_env = dj_database_url.config(conn_max_age=500)
-DATABASES['default'].update(db_from_env)
 #DATABASES = {'default': dj_database_url.config(default=os.environ["DATABASE_URL"])}
 #DATABASES['default'] =  dj_database_url.config()
-
-"""
-Local database
 
 DATABASES = {
     'default': {
@@ -101,7 +90,6 @@ DATABASES = {
 	'PORT': '',
     }
 }
-"""
 
 
 # Password validation
@@ -171,3 +159,10 @@ CORS_ORIGIN_ALLOW_ALL = True
 #         },
 #     },
 # }
+
+# Update database configuration with $DATABASE_URL.
+db_from_env = dj_database_url.config(conn_max_age=500)
+DATABASES['default'].update(db_from_env)
+
+# Allow all host headers
+ALLOWED_HOSTS = ['*']
