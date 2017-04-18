@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
 import os
+# Parse database configuration from $DATABASE_URL
 import dj_database_url
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -26,7 +27,10 @@ SECRET_KEY = 't-+k_n_x1qs)q)iigny3@1!*w7df-m)8d#kax-j6nabv_prcnx'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['squizer-server.herokuapp.com']
+ALLOWED_HOSTS = [
+    'squizer-server.herokuapp.com',
+    'localhost'
+]
 
 
 # Application definition
@@ -79,7 +83,10 @@ WSGI_APPLICATION = 'squizer_server.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
-DATABASES = {'default': dj_database_url.config(default=os.environ["DATABASE_URL"])}
+db_from_env = dj_database_url.config(conn_max_age=500)
+DATABASES['default'].update(db_from_env)
+#DATABASES = {'default': dj_database_url.config(default=os.environ["DATABASE_URL"])}
+#DATABASES['default'] =  dj_database_url.config()
 
 """
 Local database
