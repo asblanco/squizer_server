@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from courses.models import Course, Chapter, Question, Answer
+from courses.models import SchoolYear, Call
 from django.db import transaction
 
 """
@@ -121,5 +122,32 @@ class CourseSerializer(serializers.ModelSerializer):
         Update only the name of the course (not chapters)
         """
         instance.name = validated_data.get('name', instance.name)
+        instance.save()
+        return instance
+
+
+class CallSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Call
+        fields = ('__all__')
+
+class SchoolYearSerializer(serializers.ModelSerializer):
+    calls = CallSerializer(many=True)
+
+    class Meta:
+        model = SchoolYear
+        fields = ('__all__')
+
+    def create(self, validated_data):
+        calls_data = validated_data.pop('calls')
+        school_year = SchoolYear.objects.create(**validated_data)
+        for call_data in calls_data:
+            Call.objects.create(school_year=school_year, **call_data)
+        return school_year
+
+    def update(self, instance, validated_data):
+        instance.title = validated_data.get('title', instance.title)
+        instance.start_date = validated_data.get('start_date', instance.start_date)
+        instance.end_date = validated_data.get('end_date', instance.end_date)
         instance.save()
         return instance

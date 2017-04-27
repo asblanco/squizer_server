@@ -77,9 +77,6 @@ WSGI_APPLICATION = 'squizer_server.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
-#DATABASES = {'default': dj_database_url.config(default=os.environ["DATABASE_URL"])}
-#DATABASES['default'] =  dj_database_url.config()
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',

@@ -8,6 +8,8 @@ router.register(r'course', views.CourseViewSet)
 router.register(r'chapters', views.ChapterViewSet)
 router.register(r'questions', views.QuestionViewSet)
 router.register(r'answers', views.AnswerViewSet)
+router.register(r'school-year', views.SchoolYearViewSet)
+router.register(r'call', views.CallViewSet)
 
 # The API URLs are determined automatically by the router.
 urlpatterns = [

@@ -1,5 +1,7 @@
 from courses.models import Course, Chapter, Question, Answer
+from courses.models import SchoolYear, Call
 from courses.serializers import CourseListSerializer, CourseSerializer, ChapterSerializer, QuestionSerializer, AnswerSerializer, QuestionUpdateSerializer
+from courses.serializers import SchoolYearSerializer, CallSerializer
 from rest_framework import viewsets
 from rest_framework import generics
 
@@ -38,3 +40,11 @@ class QuestionViewSet(viewsets.ModelViewSet):
 class AnswerViewSet(viewsets.ModelViewSet):
     queryset = Answer.objects.all()
     serializer_class = AnswerSerializer
+
+class SchoolYearViewSet(viewsets.ModelViewSet):
+    queryset = SchoolYear.objects.all()
+    serializer_class = SchoolYearSerializer
+
+class CallViewSet(viewsets.ModelViewSet):
+    queryset = Call.objects.all()
+    serializer_class = CallSerializer

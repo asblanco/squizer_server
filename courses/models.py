@@ -23,6 +23,7 @@ class Chapter(models.Model):
 class Question(models.Model):
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE, related_name='questions')
     title = models.CharField(max_length=500)
+    last_modified = models.DateField(auto_now=True)
 
     class Meta:
         unique_together = (("id", "chapter"),)
@@ -39,5 +40,26 @@ class Answer(models.Model):
     class Meta:
         unique_together = (("id", "question"),)
         ordering = ['id']
+    def __str__(self):
+        return self.title
+
+class SchoolYear(models.Model):
+    title = models.CharField(max_length=100)
+    start_date = models.DateField()
+    end_date = models.DateField()
+
+    class Meta:
+        ordering = ['end_date']
+    def __str__(self):
+        return self.title
+
+class Call(models.Model):
+    school_year = models.ForeignKey(SchoolYear, on_delete=models.CASCADE, related_name='calls')
+    title = models.CharField(max_length=100)
+    start_date = models.DateField()
+    end_date = models.DateField()
+
+    class Meta:
+        ordering = ['end_date']
     def __str__(self):
         return self.title
