@@ -1,7 +1,7 @@
 from courses.models import Course, Chapter, Question, Answer
-from courses.models import SchoolYear, Call
+from courses.models import SchoolYear, Call, Test
 from courses.serializers import CourseListSerializer, CourseSerializer, ChapterSerializer, QuestionSerializer, AnswerSerializer, QuestionUpdateSerializer
-from courses.serializers import SchoolYearSerializer, CallSerializer
+from courses.serializers import SchoolYearSerializer, CallSerializer, TestSerializer
 from rest_framework import viewsets
 from rest_framework import generics
 
@@ -48,3 +48,21 @@ class SchoolYearViewSet(viewsets.ModelViewSet):
 class CallViewSet(viewsets.ModelViewSet):
     queryset = Call.objects.all()
     serializer_class = CallSerializer
+
+class TestViewSet(viewsets.ModelViewSet):
+    queryset = Test.objects.all()
+    serializer_class = TestSerializer
+
+    def get_queryset(self):
+        """
+        Optionally restricts the returned tests to a given call and course,
+        by filtering against a `call` and `course` query parameter in the URL.
+        """
+        queryset = Test.objects.all()
+        call = self.request.query_params.get('call', None)
+        course = self.request.query_params.get('course', None)
+        if call is not None:
+            queryset = queryset.filter(call=call)
+            if course is not None:
+                queryset = queryset.filter(course=course)
+        return queryset

@@ -4,12 +4,13 @@ from rest_framework.routers import DefaultRouter
 
 # Create a router and register our viewsets with it.
 router = DefaultRouter()
-router.register(r'course', views.CourseViewSet)
-router.register(r'chapters', views.ChapterViewSet)
-router.register(r'questions', views.QuestionViewSet)
-router.register(r'answers', views.AnswerViewSet)
-router.register(r'school-year', views.SchoolYearViewSet)
+router.register(r'answer', views.AnswerViewSet)
 router.register(r'call', views.CallViewSet)
+router.register(r'chapter', views.ChapterViewSet)
+router.register(r'course', views.CourseViewSet)
+router.register(r'question', views.QuestionViewSet)
+router.register(r'school-year', views.SchoolYearViewSet)
+router.register(r'test', views.TestViewSet)
 
 # The API URLs are determined automatically by the router.
 urlpatterns = [

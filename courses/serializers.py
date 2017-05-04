@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from courses.models import Course, Chapter, Question, Answer
-from courses.models import SchoolYear, Call
+from courses.models import SchoolYear, Call, Test
 from django.db import transaction
 
 """
@@ -151,3 +151,8 @@ class SchoolYearSerializer(serializers.ModelSerializer):
         instance.end_date = validated_data.get('end_date', instance.end_date)
         instance.save()
         return instance
+
+class TestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Test
+        fields = ('__all__')
