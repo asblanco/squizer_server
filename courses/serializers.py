@@ -152,6 +152,22 @@ class SchoolYearSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+# Only the list of questions, without answers, to append to each test
+class QuestionRetrieveTestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Question
+        fields = ('__all__')
+
+class RetrieveTestSerializer(serializers.ModelSerializer):
+    # course = serializers.CharField(source='course.name', read_only=True)
+    questions = QuestionRetrieveTestSerializer(many=True)
+    answers = AnswerSerializer(many=True)
+
+    class Meta:
+        model = Test
+        fields = ('__all__')
+        depth = 2
+
 class TestSerializer(serializers.ModelSerializer):
     class Meta:
         model = Test

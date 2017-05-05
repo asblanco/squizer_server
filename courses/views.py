@@ -1,7 +1,7 @@
 from courses.models import Course, Chapter, Question, Answer
 from courses.models import SchoolYear, Call, Test
 from courses.serializers import CourseListSerializer, CourseSerializer, ChapterSerializer, QuestionSerializer, AnswerSerializer, QuestionUpdateSerializer
-from courses.serializers import SchoolYearSerializer, CallSerializer, TestSerializer
+from courses.serializers import SchoolYearSerializer, CallSerializer, TestSerializer, RetrieveTestSerializer
 from rest_framework import viewsets
 from rest_framework import generics
 
@@ -66,3 +66,10 @@ class TestViewSet(viewsets.ModelViewSet):
             if course is not None:
                 queryset = queryset.filter(course=course)
         return queryset
+
+class RetrieveTest(generics.RetrieveAPIView):
+    """
+    Retrieve test
+    """
+    queryset = Test.objects.all()
+    serializer_class = RetrieveTestSerializer
