@@ -1,4 +1,5 @@
 from django.conf.urls import url, include
+from django.conf.urls.defaults import patterns
 from courses import views
 from rest_framework.routers import DefaultRouter
 from django.conf import settings
