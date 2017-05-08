@@ -1,5 +1,4 @@
 from django.conf.urls import url, include
-from django.conf.urls.defaults import patterns
 from courses import views
 from rest_framework.routers import DefaultRouter
 from django.conf import settings
@@ -23,6 +22,4 @@ urlpatterns = [
 ]
 
 if not settings.DEBUG:
-    urlpatterns += patterns('',
-        (r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT}),
-    )
+    urlpatterns += url('', (r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT}))
