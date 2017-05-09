@@ -2,7 +2,6 @@ from django.conf.urls import url, include
 from courses import views
 from rest_framework.routers import DefaultRouter
 from django.conf import settings
-from django.conf.urls.static import static
 
 # Create a router and register our viewsets with it.
 router = DefaultRouter()
@@ -19,5 +18,6 @@ urlpatterns = [
     url(r'^courses/$', views.CourseList.as_view()),
     url(r'^update-question/(?P<pk>[0-9]+)/$', views.QuestionUpdate.as_view()),
     url(r'^retrieve-test/(?P<pk>[0-9]+)/$', views.RetrieveTest.as_view()),
-    url(r'^', include(router.urls))
+    url(r'^test-pdf/(?P<pk>[0-9]+)/$', views.pdf_view),
+    url(r'^', include(router.urls)),
 ]

@@ -4,6 +4,9 @@ from courses.serializers import CourseListSerializer, CourseSerializer, ChapterS
 from courses.serializers import SchoolYearSerializer, CallSerializer, TestSerializer, RetrieveTestSerializer
 from rest_framework import viewsets
 from rest_framework import generics
+from squizer_server.settings import BASE_DIR
+from django.http import HttpResponse
+import os
 
 
 class CourseList(generics.ListAPIView):
@@ -73,3 +76,11 @@ class RetrieveTest(generics.RetrieveAPIView):
     """
     queryset = Test.objects.all()
     serializer_class = RetrieveTestSerializer
+
+def pdf_view(request, pk):
+    with open(os.path.join(BASE_DIR, 'courses/static/' + pk + '.pdf'), 'rb') as pdf:
+        # Create the HttpResponse object with the appropriate PDF headers.
+        response = HttpResponse(pdf.read(), content_type='application/pdf')
+        response['Content-Disposition'] = 'inline;filename=test.pdf'
+        # response['Content-Disposition'] = 'attachment;filename=full.pdf'
+        return response
