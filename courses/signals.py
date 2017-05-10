@@ -2,8 +2,8 @@ from courses.models import Test, Question, Answer
 from django.db.models.signals import m2m_changed
 from django.dispatch import receiver
 
-from pylatex import Document, Section, Subsection
-from pylatex.utils import italic
+from pylatex import Command, Document, Section, Subsection
+from pylatex.utils import italic, NoEscape
 from squizer_server.settings import BASE_DIR
 import os
 
@@ -43,16 +43,43 @@ def prepare_answers(sender, instance, action, pk_set, **kwargs):
 
 def generate_pdf():
     global questions, answers, test
-    geometry_options = {"tmargin": "1cm", "lmargin": "2cm"}
-    doc = Document(geometry_options=geometry_options)
 
-    with doc.create(Section(test)):
-        doc.append('Answer all the questions you can. Good luck!')
-        for q in questions:
-            with doc.create(Subsection(q)):
-                for a in answers:
-                    if a.question == q:
-                        doc.append('- ' + a.title + ' \n')
+    geometry_options = {"tmargin": "0.5cm"}
+    doc = Document('basic', geometry_options=geometry_options)
+    doc.documentclass = Command(
+        'documentclass',
+        options=['12pt'],
+        arguments=['exam'],
+    )
+
+    doc.preamble.append(Command('title', str(test)))
+    print(test.course)
+    doc.preamble.append(Command('author', 'Data Structures and Algorithms'))
+    doc.preamble.append(Command('date', NoEscape(r'\today')))
+    doc.append(NoEscape(r'\maketitle'))
+    doc.append(NoEscape(r'\hbox to \textwidth{Name:\enspace\hrulefill\hrulefill\hrulefill\enspace ' +
+    'Date:\enspace\hrulefill}'))
+
+    doc.append(NoEscape(r'\vspace{0.1in}'))
+    doc.append(NoEscape(r'\begin{center}'))
+    doc.append(NoEscape(r'\fbox{\fbox{\parbox{5.5in}{Answer the questions in the spaces provided on ' +
+    'the question sheets. If you run out of room for an answer, continue on the back of the page.}}}'))
+    doc.append(NoEscape(r'\addpoints'))
+    doc.append(NoEscape(r'\bigskip'))
+    doc.append(NoEscape(r'\newline'))
+    doc.append(NoEscape(r'\gradetable[h][questions]'))
+    doc.append(NoEscape(r'\bigskip'))
+    doc.append(NoEscape(r'\end{center}'))
+
+    doc.append(NoEscape(r'\begin{questions}'))
+    for q in questions:
+        doc.append(NoEscape(r'\question[1]  ' + str(q)))
+        doc.append(NoEscape(r'\begin{choices}'))
+        for a in answers:
+            if a.question == q:
+                doc.append(NoEscape(r'\choice ' + a.title))
+        doc.append(NoEscape(r'\end{choices}'))
+    doc.append(NoEscape(r'\end{questions}'))
 
 
     doc.generate_pdf(os.path.join(BASE_DIR, 'courses/static/' + str(test.id)), clean_tex=False)

@@ -82,5 +82,10 @@ def pdf_view(request, pk):
         # Create the HttpResponse object with the appropriate PDF headers.
         response = HttpResponse(pdf.read(), content_type='application/pdf')
         response['Content-Disposition'] = 'inline;filename=test.pdf'
-        # response['Content-Disposition'] = 'attachment;filename=full.pdf'
+        return response
+
+def tex_view(request, pk):
+    with open(os.path.join(BASE_DIR, 'courses/static/' + pk + '.tex'), 'rb') as pdf:
+        response = HttpResponse(pdf.read(), content_type='text/plain')
+        response['Content-Disposition'] = 'attachment;filename=' + pk + '.tex'
         return response
