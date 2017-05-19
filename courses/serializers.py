@@ -70,7 +70,6 @@ class QuestionUpdateSerializer(serializers.ModelSerializer):
 
             #Delete answers that were not in the request (the user deleted them)
             old_answers = Answer.objects.filter(question = validated_data.get('id')).values()
-            print(old_answers)
             for old in old_answers:
                 toDelete = True
                 for answer in answers_data:

@@ -1,5 +1,5 @@
 from courses.models import Test, Question, Answer
-from django.db.models.signals import m2m_changed
+from django.db.models.signals import m2m_changed, post_delete
 from django.dispatch import receiver
 
 from pylatex import Command, Document, Section, Subsection
@@ -11,6 +11,15 @@ count = 0
 test = None
 questions = {}
 answers = {}
+
+""" Deletes file from filesystem on `post_delete` """
+@receiver(post_delete, sender=Test)
+def delete_files(sender, instance, *args, **kwargs):
+    path = os.path.join(BASE_DIR, 'courses/static/' + str(instance.id))
+    if os.path.isfile(path + '.pdf'):
+       os.remove(path + '.pdf')
+    if os.path.isfile(path + '.tex'):
+       os.remove(path + '.tex')
 
 @receiver(m2m_changed, sender=Test.questions.through)
 def prepare_questions(sender, instance, action, pk_set, **kwargs):
@@ -53,7 +62,6 @@ def generate_pdf():
     )
 
     doc.preamble.append(Command('title', str(test)))
-    print(test.course)
     doc.preamble.append(Command('author', 'Data Structures and Algorithms'))
     doc.preamble.append(Command('date', NoEscape(r'\today')))
     doc.append(NoEscape(r'\maketitle'))
