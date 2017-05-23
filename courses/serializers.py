@@ -87,7 +87,7 @@ class ChapterSerializer(serializers.ModelSerializer):
     questions = QuestionSerializer(many=True)
     class Meta:
         model = Chapter
-        fields = ('course', 'id', 'title', 'questions')
+        fields = ('__all__')
 
     def create(self, validated_data):
         questions_data = validated_data.pop('questions')
@@ -107,7 +107,7 @@ class CourseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Course
-        fields = ('id', 'name', 'chapters')
+        fields = ('__all__')
 
     def create(self, validated_data):
         chapters_data = validated_data.pop('chapters')

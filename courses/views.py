@@ -5,7 +5,10 @@ from courses.serializers import SchoolYearSerializer, CallSerializer, TestSerial
 from rest_framework import viewsets
 from rest_framework import generics
 from squizer_server.settings import BASE_DIR
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
+from rest_framework.decorators import api_view
+from random import randint
+import codecs, json
 import os
 
 
@@ -77,14 +80,68 @@ class RetrieveTest(generics.RetrieveAPIView):
     queryset = Test.objects.all()
     serializer_class = RetrieveTestSerializer
 
-def pdf_view(request, pk):
+@api_view(["POST"])
+def generateTest(request):
+    reader = codecs.getreader("utf-8")
+    data = json.load(reader(request))
+
+    test = {
+        'id': 0,
+        'title': data['title'],
+        'course': data['course'],
+        'call': data['call'],
+        'questions': [],
+        'answers': []
+    }
+
+    for chapter in data['chapters']:
+        if chapter['numberQuestions'] > 0:
+            # Selected valid questions
+            questions = []
+            for question in chapter['questions']:
+                if question['checked']:
+                    q = {
+                        'id': question['id'],
+                        'answers': []
+                    }
+                    for answer in question['answers']:
+                        if answer['checked']:
+                            q['answers'].append(answer['id'])
+                    if len(q['answers']) >= 4:
+                        questions.append(q)
+                    else:
+                        return HttpResponseBadRequest('Questions with insufficient selected answers')
+
+            nQuestions = chapter['numberQuestions']
+            if len(questions) < nQuestions:
+                return HttpResponseBadRequest('Insufficient valid selected questions')
+            else:
+                while nQuestions > 0:
+                    # Select random questions from the pool of selected questions
+                    randomIndex = randint(0, len(questions)-1)
+                    testQuestion = questions.pop(randomIndex)
+                    # Add questions to test
+                    test['questions'].append(testQuestion['id'])
+                    # Add answers to test, random if there is more than 4 to choose from
+                    if len(testQuestion['answers']) > 4:
+                        for i in range(0, 4):
+                            randomIndex = randint(0, len(testQuestion['answers'])-1)
+                            test['answers'].append(testQuestion['answers'].pop(randomIndex))
+                    else:
+                        for i in range(0, 4):
+                            test['answers'].append(testQuestion['answers'].pop())
+                    nQuestions -= 1
+
+    return JsonResponse(test)
+
+
+def retrievePDF(request, pk):
     with open(os.path.join(BASE_DIR, 'courses/static/' + pk + '.pdf'), 'rb') as pdf:
-        # Create the HttpResponse object with the appropriate PDF headers.
         response = HttpResponse(pdf.read(), content_type='application/pdf')
         response['Content-Disposition'] = 'inline;filename=test.pdf'
         return response
 
-def tex_view(request, pk):
+def retrieveTEX(request, pk):
     with open(os.path.join(BASE_DIR, 'courses/static/' + pk + '.tex'), 'rb') as pdf:
         response = HttpResponse(pdf.read(), content_type='text/plain')
         response['Content-Disposition'] = 'attachment;filename=' + pk + '.tex'

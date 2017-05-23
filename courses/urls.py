@@ -18,7 +18,8 @@ urlpatterns = [
     url(r'^courses/$', views.CourseList.as_view()),
     url(r'^update-question/(?P<pk>[0-9]+)/$', views.QuestionUpdate.as_view()),
     url(r'^retrieve-test/(?P<pk>[0-9]+)/$', views.RetrieveTest.as_view()),
-    url(r'^test-pdf/(?P<pk>[0-9]+)/$', views.pdf_view),
-    url(r'^test-tex/(?P<pk>[0-9]+)/$', views.tex_view),
+    url(r'^test-pdf/(?P<pk>[0-9]+)/$', views.retrievePDF),
+    url(r'^test-tex/(?P<pk>[0-9]+)/$', views.retrieveTEX),
+    url(r'^generate-test/$', views.generateTest),
     url(r'^', include(router.urls)),
 ]
