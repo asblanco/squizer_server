@@ -1,16 +1,13 @@
-from courses.models import Course, Chapter, Question, Answer
-from courses.models import SchoolYear, Call, Test
+from courses.models import Course, Chapter, Question, Answer, SchoolYear, Call, Test
 from courses.serializers import CourseListSerializer, CourseSerializer, ChapterSerializer, QuestionSerializer, AnswerSerializer, QuestionUpdateSerializer
 from courses.serializers import SchoolYearSerializer, CallSerializer, TestSerializer, RetrieveTestSerializer
-from rest_framework import viewsets
-from rest_framework import generics
+from rest_framework import generics, viewsets
 from squizer_server.settings import BASE_DIR
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from rest_framework.decorators import api_view
 from random import randint
 import codecs, json
 import os
-
 
 class CourseList(generics.ListAPIView):
     """
@@ -96,8 +93,7 @@ def generateTest(request):
 
     for chapter in data['chapters']:
         if chapter['numberQuestions'] > 0:
-            # Selected valid questions
-            questions = []
+            questions = [] # Selected valid questions
             for question in chapter['questions']:
                 if question['checked']:
                     q = {
