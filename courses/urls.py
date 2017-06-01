@@ -6,22 +6,20 @@ from rest_framework_jwt.views import obtain_jwt_token
 
 # Create a router and register our viewsets with it.
 router = DefaultRouter()
-router.register(r'answer', views.AnswerViewSet)
-router.register(r'call', views.CallViewSet)
-router.register(r'chapter', views.ChapterViewSet)
 router.register(r'course', views.CourseViewSet)
+router.register(r'chapter', views.ChapterViewSet)
 router.register(r'question', views.QuestionViewSet)
-router.register(r'school-year', views.SchoolYearViewSet)
+router.register(r'schoolyear', views.SchoolYearViewSet)
+router.register(r'call', views.CallViewSet)
 router.register(r'test', views.TestViewSet)
 
 # The API URLs are determined automatically by the router.
 urlpatterns = [
-    url(r'^courses/$', views.CourseList.as_view()),
-    url(r'^update-question/(?P<pk>[0-9]+)/$', views.QuestionUpdate.as_view()),
-    url(r'^retrieve-test/(?P<pk>[0-9]+)/$', views.RetrieveTest.as_view()),
+    url(r'^course-detail/(?P<pk>[0-9]+)/$', views.CourseDetail.as_view()),
+    url(r'^schoolyears/$', views.SchoolYearList.as_view()),
+    url(r'^test-detail/(?P<pk>[0-9]+)/$', views.TestDetail.as_view()),
     url(r'^test-pdf/(?P<pk>[0-9]+)/$', views.retrievePDF),
     url(r'^test-tex/(?P<pk>[0-9]+)/$', views.retrieveTEX),
     url(r'^generate-test/$', views.generateTest),
-    url(r'^', include(router.urls)),
     url(r'^api-token-auth/', obtain_jwt_token),
-]
+] + router.urls

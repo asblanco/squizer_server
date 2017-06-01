@@ -1,7 +1,7 @@
 from courses.models import Course, Chapter, Question, Answer, SchoolYear, Call, Test
-from courses.serializers import CourseListSerializer, CourseSerializer, ChapterSerializer, QuestionSerializer, AnswerSerializer, QuestionUpdateSerializer
-from courses.serializers import SchoolYearSerializer, CallSerializer, TestSerializer, RetrieveTestSerializer
-from rest_framework import generics, viewsets
+from courses.serializers import CourseSerializer, CourseDetailSerializer, ChapterSerializer, QuestionDetailSerializer
+from courses.serializers import SchoolYearListSerializer, SchoolYearSerializer, CallSerializer, TestDetailSerializer, TestSerializer
+from rest_framework import generics, viewsets, mixins
 from squizer_server.settings import BASE_DIR
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from rest_framework.decorators import api_view
@@ -9,40 +9,47 @@ from random import randint
 import codecs, json
 import os
 
-class CourseList(generics.ListAPIView):
-    """
-    List all courses.
-    """
-    queryset = Course.objects.all()
-    serializer_class = CourseListSerializer
-
-class QuestionUpdate(generics.UpdateAPIView):
-    """
-    Update question and its answers
-    """
-    queryset = Question.objects.all()
-    serializer_class = QuestionUpdateSerializer
-
-"""
-These viewsets automatically provide `list`, `create`, `retrieve`,
-`update` and `destroy` actions.
-"""
-
 class CourseViewSet(viewsets.ModelViewSet):
+    """
+    Retrieve, Create, List, Update and Destroy a Course
+    """
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
+    def get_queryset(self):
+        """
+        Returns a list of all the courses for the currently authenticated user.
+        """
+        user = self.request.user
+        return Course.objects.filter(teachers=user)
+
+    def perform_create(self, serializer):
+        return serializer.save(teachers=[1, self.request.user])
+
+class CourseDetail(generics.RetrieveAPIView):
+    """
+    Retrieve Course with extended details
+    """
+    queryset = Course.objects.all()
+    serializer_class = CourseDetailSerializer
 
 class ChapterViewSet(viewsets.ModelViewSet):
+    """
+    Used to Create, Update and Delete Chapters,
+    and also Retrieve in the browsable Django REST API
+    """
     queryset = Chapter.objects.all()
     serializer_class = ChapterSerializer
 
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.all()
-    serializer_class = QuestionSerializer
+    serializer_class = QuestionDetailSerializer
 
-class AnswerViewSet(viewsets.ModelViewSet):
-    queryset = Answer.objects.all()
-    serializer_class = AnswerSerializer
+class SchoolYearList(generics.ListAPIView):
+    """
+    Returns the list with School Years and its Calls
+    """
+    queryset = SchoolYear.objects.all()
+    serializer_class = SchoolYearListSerializer
 
 class SchoolYearViewSet(viewsets.ModelViewSet):
     queryset = SchoolYear.objects.all()
@@ -70,12 +77,13 @@ class TestViewSet(viewsets.ModelViewSet):
                 queryset = queryset.filter(course=course)
         return queryset
 
-class RetrieveTest(generics.RetrieveAPIView):
+class TestDetail(generics.RetrieveAPIView):
     """
-    Retrieve test
+    Retrieve extended Test details
     """
     queryset = Test.objects.all()
-    serializer_class = RetrieveTestSerializer
+    serializer_class = TestDetailSerializer
+    
 
 @api_view(["POST"])
 def generateTest(request):

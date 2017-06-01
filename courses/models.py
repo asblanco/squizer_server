@@ -2,13 +2,13 @@ from django.db import models
 
 class Course(models.Model):
     name = models.CharField(max_length=100)
-    # teachers = models.ForeignKey('auth.User', related_name='courses')
+    teachers = models.ManyToManyField('auth.User', default=[1])
 
     def __str__(self):
         return self.name
 
     class Meta:
-        ordering = ['id']
+        ordering = ['name']
 
 
 class Chapter(models.Model):
@@ -20,7 +20,7 @@ class Chapter(models.Model):
 
     class Meta:
         unique_together = (("id", "course"),)
-        ordering = ['id']
+        ordering = ['title']
 
 
 class Question(models.Model):

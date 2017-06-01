@@ -13,10 +13,10 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 import os
 # Parse database configuration from $DATABASE_URL
 import dj_database_url
+import datetime
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
@@ -63,6 +63,14 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
     ),
 }
+
+# See https://getblimp.github.io/django-rest-framework-jwt
+
+JWT_AUTH = {
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=600),
+    'JWT_AUTH_HEADER_PREFIX': 'Bearer'
+}
+
 
 ROOT_URLCONF = 'squizer_server.urls'
 
@@ -123,18 +131,15 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
+
 STATIC_URL = '/static/'
 
 # Configure the middleware's behaviour of Django
