@@ -1,7 +1,7 @@
 from courses.models import Course, Chapter, Question, Answer, SchoolYear, Call, Test
 from courses.serializers import CourseSerializer, CourseDetailSerializer, ChapterSerializer, QuestionDetailSerializer
 from courses.serializers import SchoolYearListSerializer, SchoolYearSerializer, CallSerializer, TestDetailSerializer, TestSerializer
-from rest_framework import generics, viewsets, mixins
+from rest_framework import generics, viewsets
 from squizer_server.settings import BASE_DIR
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from rest_framework.decorators import api_view
@@ -11,13 +11,13 @@ import os
 
 class CourseViewSet(viewsets.ModelViewSet):
     """
-    Retrieve, Create, List, Update and Destroy a Course
+    List, Retrieve, Create, List, Update and Destroy a Course
     """
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
     def get_queryset(self):
         """
-        Returns a list of all the courses for the currently authenticated user.
+        Filters the list of courses for the currently authenticated user.
         """
         user = self.request.user
         return Course.objects.filter(teachers=user)
@@ -83,13 +83,14 @@ class TestDetail(generics.RetrieveAPIView):
     """
     queryset = Test.objects.all()
     serializer_class = TestDetailSerializer
-    
+
 
 @api_view(["POST"])
 def generateTest(request):
     reader = codecs.getreader("utf-8")
     data = json.load(reader(request))
 
+    # Test to be saved to database
     test = {
         'id': 0,
         'title': data['title'],
@@ -101,40 +102,65 @@ def generateTest(request):
 
     for chapter in data['chapters']:
         if chapter['numberQuestions'] > 0:
-            questions = [] # Selected valid questions
+            selectedQuestions = []
+            # Store selected/checked valid questions in selectedQuestions
             for question in chapter['questions']:
                 if question['checked']:
                     q = {
                         'id': question['id'],
                         'answers': []
                     }
+                    # Append checked answers to q
+                    corrects, incorrects = 0, 0
                     for answer in question['answers']:
                         if answer['checked']:
-                            q['answers'].append(answer['id'])
-                    if len(q['answers']) >= 4:
-                        questions.append(q)
+                            if answer['correct']:
+                                corrects += 1
+                            else:
+                                incorrects += 1
+                            a = {
+                                'id': answer['id'],
+                                'correct': answer['correct']
+                            }
+                            q['answers'].append(a)
+                    # Only store q in selectedQuestions if there are at least 1 correct and 3 incorrect answers checked
+                    if corrects >= 1 and incorrects >= 3:
+                        selectedQuestions.append(q)
                     else:
-                        return HttpResponseBadRequest('Questions with insufficient selected answers')
+                        return HttpResponseBadRequest('Question ' + str(q['id']) + ' with insufficient selected answers. At least 1 correct and 3 incorrects')
 
-            nQuestions = chapter['numberQuestions']
-            if len(questions) < nQuestions:
-                return HttpResponseBadRequest('Insufficient valid selected questions')
+            # If the user wants a test with more questions that the actual number of valid selected questions
+            testNQuestions = chapter['numberQuestions']
+            if len(selectedQuestions) < testNQuestions:
+                return HttpResponseBadRequest('Insufficient number of valid selected questions')
             else:
-                while nQuestions > 0:
+                while testNQuestions > 0:
                     # Select random questions from the pool of selected questions
-                    randomIndex = randint(0, len(questions)-1)
-                    testQuestion = questions.pop(randomIndex)
+                    randomIndex = randint(0, len(selectedQuestions)-1)
+                    testQuestion = selectedQuestions.pop(randomIndex)
                     # Add questions to test
                     test['questions'].append(testQuestion['id'])
+
                     # Add answers to test, random if there is more than 4 to choose from
                     if len(testQuestion['answers']) > 4:
-                        for i in range(0, 4):
+                        answersAdded, correct, incorrect = 0, 0, 0
+                        # Choose 4 answers
+                        while (answersAdded <= 4) and (len(testQuestion['answers']) > 0):
                             randomIndex = randint(0, len(testQuestion['answers'])-1)
-                            test['answers'].append(testQuestion['answers'].pop(randomIndex))
+                            answer = testQuestion['answers'].pop(randomIndex)
+                            # Add only 1 correct and 3 incorrects
+                            if not answer['correct'] and incorrect < 3:
+                                test['answers'].append(answer['id'])
+                                incorrect += 1
+                                answersAdded += 1
+                            elif answer['correct'] and correct == 0:
+                                test['answers'].append(answer['id'])
+                                correct += 1
+                                answersAdded += 1
                     else:
                         for i in range(0, 4):
                             test['answers'].append(testQuestion['answers'].pop())
-                    nQuestions -= 1
+                    testNQuestions -= 1
 
     return JsonResponse(test)
 
