@@ -31,7 +31,7 @@ DEBUG = True
 
 INSTALLED_APPS = [
     'corsheaders',
-    'courses.apps.CoursesConfig',
+    'squizer.apps.SquizerConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -67,7 +67,7 @@ REST_FRAMEWORK = {
 # See https://getblimp.github.io/django-rest-framework-jwt
 
 JWT_AUTH = {
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=600),
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(minutes=10),
     'JWT_AUTH_HEADER_PREFIX': 'Bearer'
 }
 

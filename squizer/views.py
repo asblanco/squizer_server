@@ -1,6 +1,6 @@
-from courses.models import Course, Chapter, Question, Answer, SchoolYear, Call, Test
-from courses.serializers import CourseSerializer, CourseDetailSerializer, ChapterSerializer, QuestionDetailSerializer
-from courses.serializers import SchoolYearListSerializer, SchoolYearSerializer, CallSerializer, TestDetailSerializer, TestSerializer
+from squizer.models import Course, Chapter, Question, Answer, SchoolYear, Term, Test
+from squizer.serializers import CourseSerializer, CourseDetailSerializer, ChapterSerializer, QuestionDetailSerializer
+from squizer.serializers import SchoolYearListSerializer, SchoolYearSerializer, TermSerializer, TestDetailSerializer, TestSerializer
 from rest_framework import generics, viewsets
 from squizer_server.settings import BASE_DIR
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
@@ -46,7 +46,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
 
 class SchoolYearList(generics.ListAPIView):
     """
-    Returns the list with School Years and its Calls
+    Returns the list with School Years and its Terms
     """
     queryset = SchoolYear.objects.all()
     serializer_class = SchoolYearListSerializer
@@ -55,9 +55,9 @@ class SchoolYearViewSet(viewsets.ModelViewSet):
     queryset = SchoolYear.objects.all()
     serializer_class = SchoolYearSerializer
 
-class CallViewSet(viewsets.ModelViewSet):
-    queryset = Call.objects.all()
-    serializer_class = CallSerializer
+class TermViewSet(viewsets.ModelViewSet):
+    queryset = Term.objects.all()
+    serializer_class = TermSerializer
 
 class TestViewSet(viewsets.ModelViewSet):
     queryset = Test.objects.all()
@@ -65,14 +65,14 @@ class TestViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """
-        Optionally restricts the returned tests to a given call and course,
-        by filtering against a `call` and `course` query parameter in the URL.
+        Optionally restricts the returned tests to a given term and course,
+        by filtering against a `term` and `course` query parameter in the URL.
         """
         queryset = Test.objects.all()
-        call = self.request.query_params.get('call', None)
+        term = self.request.query_params.get('term', None)
         course = self.request.query_params.get('course', None)
-        if call is not None:
-            queryset = queryset.filter(call=call)
+        if term is not None:
+            queryset = queryset.filter(term=term)
             if course is not None:
                 queryset = queryset.filter(course=course)
         return queryset
@@ -95,7 +95,7 @@ def generateTest(request):
         'id': 0,
         'title': data['title'],
         'course': data['course'],
-        'call': data['call'],
+        'term': data['term'],
         'questions': [],
         'answers': []
     }
@@ -127,12 +127,14 @@ def generateTest(request):
                     if corrects >= 1 and incorrects >= 3:
                         selectedQuestions.append(q)
                     else:
-                        return HttpResponseBadRequest('Question ' + str(q['id']) + ' with insufficient selected answers. At least 1 correct and 3 incorrects')
+                        # 1 = Question with insufficient selected answers. At least 1 correct and 3 incorrects
+                        return HttpResponseBadRequest(1)
 
             # If the user wants a test with more questions that the actual number of valid selected questions
             testNQuestions = chapter['numberQuestions']
             if len(selectedQuestions) < testNQuestions:
-                return HttpResponseBadRequest('Insufficient number of valid selected questions')
+                # 2 = Insufficient number of valid selected questions
+                return HttpResponseBadRequest(2)
             else:
                 while testNQuestions > 0:
                     # Select random questions from the pool of selected questions
@@ -159,20 +161,20 @@ def generateTest(request):
                                 answersAdded += 1
                     else:
                         for i in range(0, 4):
-                            test['answers'].append(testQuestion['answers'].pop())
+                            test['answers'].append(testQuestion['answers'].pop()['id'])
                     testNQuestions -= 1
 
     return JsonResponse(test)
 
 
 def retrievePDF(request, pk):
-    with open(os.path.join(BASE_DIR, 'courses/static/' + pk + '.pdf'), 'rb') as pdf:
+    with open(os.path.join(BASE_DIR, 'squizer/static/' + pk + '.pdf'), 'rb') as pdf:
         response = HttpResponse(pdf.read(), content_type='application/pdf')
         response['Content-Disposition'] = 'inline;filename=test.pdf'
         return response
 
 def retrieveTEX(request, pk):
-    with open(os.path.join(BASE_DIR, 'courses/static/' + pk + '.tex'), 'rb') as pdf:
+    with open(os.path.join(BASE_DIR, 'squizer/static/' + pk + '.tex'), 'rb') as pdf:
         response = HttpResponse(pdf.read(), content_type='text/plain')
         response['Content-Disposition'] = 'attachment;filename=' + pk + '.tex'
         return response

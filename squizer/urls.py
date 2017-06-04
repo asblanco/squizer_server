@@ -1,5 +1,5 @@
 from django.conf.urls import url, include
-from courses import views
+from squizer import views
 from rest_framework.routers import DefaultRouter
 from django.conf import settings
 from rest_framework_jwt.views import obtain_jwt_token
@@ -10,7 +10,7 @@ router.register(r'course', views.CourseViewSet)
 router.register(r'chapter', views.ChapterViewSet)
 router.register(r'question', views.QuestionViewSet)
 router.register(r'schoolyear', views.SchoolYearViewSet)
-router.register(r'call', views.CallViewSet)
+router.register(r'term', views.TermViewSet)
 router.register(r'test', views.TestViewSet)
 
 # The API URLs are determined automatically by the router.

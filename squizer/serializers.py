@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from courses.models import Course, Chapter, Question, Answer, SchoolYear, Call, Test
+from squizer.models import Course, Chapter, Question, Answer, SchoolYear, Term, Test
 from django.db import transaction
 
 class CourseSerializer(serializers.ModelSerializer):
@@ -83,13 +83,13 @@ class ChapterSerializer(serializers.ModelSerializer):
         model = Chapter
         fields = ('__all__')
 
-class CallSerializer(serializers.ModelSerializer):
+class TermSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Call
+        model = Term
         fields = ('__all__')
 
 class SchoolYearListSerializer(serializers.ModelSerializer):
-    calls = CallSerializer(many=True)
+    terms = TermSerializer(many=True)
     class Meta:
         model = SchoolYear
         fields = ('__all__')

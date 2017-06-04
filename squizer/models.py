@@ -25,7 +25,7 @@ class Chapter(models.Model):
 
 class Question(models.Model):
     title = models.CharField(max_length=500)
-    last_modified = models.DateField(auto_now=True)
+    last_modified = models.DateTimeField(auto_now=True)
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE, related_name='questions')
 
     def __str__(self):
@@ -59,11 +59,11 @@ class SchoolYear(models.Model):
     class Meta:
         ordering = ['end_date']
 
-class Call(models.Model):
+class Term(models.Model):
     title = models.CharField(max_length=100)
     start_date = models.DateField()
     end_date = models.DateField()
-    school_year = models.ForeignKey(SchoolYear, on_delete=models.CASCADE, related_name='calls')
+    schoolyear = models.ForeignKey(SchoolYear, on_delete=models.CASCADE, related_name='terms')
 
     def __str__(self):
         return self.title
@@ -73,9 +73,9 @@ class Call(models.Model):
 
 class Test(models.Model):
     title = models.CharField(max_length=100)
-    creation_date = models.DateField(auto_now_add=True)
+    creation_date = models.DateTimeField(auto_now_add=True)
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='tests')
-    call = models.ForeignKey(Call, on_delete=models.CASCADE, related_name='tests')
+    term = models.ForeignKey(Term, on_delete=models.CASCADE, related_name='tests', default=1)
     questions = models.ManyToManyField(Question)
     answers = models.ManyToManyField(Answer)
 

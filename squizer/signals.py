@@ -1,4 +1,4 @@
-from courses.models import Test, Question, Answer
+from squizer.models import Test, Question, Answer
 from django.db.models.signals import m2m_changed, post_delete
 from django.dispatch import receiver
 
@@ -8,14 +8,14 @@ from squizer_server.settings import BASE_DIR
 import os
 
 count = 0
-test = None
 questions = {}
 answers = {}
+test = None
 
 """ Deletes file from filesystem on `post_delete` """
 @receiver(post_delete, sender=Test)
 def delete_files(sender, instance, *args, **kwargs):
-    path = os.path.join(BASE_DIR, 'courses/static/' + str(instance.id))
+    path = os.path.join(BASE_DIR, 'squizer/static/' + str(instance.id))
     if os.path.isfile(path + '.pdf'):
        os.remove(path + '.pdf')
     if os.path.isfile(path + '.tex'):
@@ -23,7 +23,7 @@ def delete_files(sender, instance, *args, **kwargs):
 
 @receiver(m2m_changed, sender=Test.questions.through)
 def prepare_questions(sender, instance, action, pk_set, **kwargs):
-    global count, questions, answers, test
+    global count, questions, test
 
     if action == "post_add":
         questions = {}
@@ -38,7 +38,7 @@ def prepare_questions(sender, instance, action, pk_set, **kwargs):
 
 @receiver(m2m_changed, sender=Test.answers.through)
 def prepare_answers(sender, instance, action, pk_set, **kwargs):
-    global count, questions, answers, test
+    global count, answers
 
     if action == "post_add":
         answers = {}
@@ -62,7 +62,7 @@ def generate_pdf():
     )
 
     doc.preamble.append(Command('title', str(test)))
-    doc.preamble.append(Command('author', 'Data Structures and Algorithms'))
+    doc.preamble.append(Command('author', str(test.course)))
     doc.preamble.append(Command('date', NoEscape(r'\today')))
     doc.append(NoEscape(r'\maketitle'))
     doc.append(NoEscape(r'\hbox to \textwidth{Name:\enspace\hrulefill\hrulefill\hrulefill\enspace ' +
@@ -90,4 +90,4 @@ def generate_pdf():
     doc.append(NoEscape(r'\end{questions}'))
 
 
-    doc.generate_pdf(os.path.join(BASE_DIR, 'courses/static/' + str(test.id)), clean_tex=False)
+    doc.generate_pdf(os.path.join(BASE_DIR, 'squizer/static/' + str(test.id)), clean_tex=False)
