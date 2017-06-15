@@ -75,6 +75,8 @@ class TestViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(term=term)
             if course is not None:
                 queryset = queryset.filter(course=course)
+        elif course is not None:
+            queryset = queryset.filter(course=course)
         return queryset
 
 class TestDetail(generics.RetrieveAPIView):
@@ -170,7 +172,7 @@ def generateTest(request):
 def retrievePDF(request, pk):
     with open(os.path.join(BASE_DIR, 'squizer/static/' + pk + '.pdf'), 'rb') as pdf:
         response = HttpResponse(pdf.read(), content_type='application/pdf')
-        response['Content-Disposition'] = 'inline;filename=test.pdf'
+        response['Content-Disposition'] = 'attachment;filename=test' + pk + '.pdf'
         return response
 
 def retrieveTEX(request, pk):
